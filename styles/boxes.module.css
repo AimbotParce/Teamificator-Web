@@ -1,0 +1,6 @@
+.cartoony {
+    border: 4px solid #000;
+    border-radius: 16px;
+    box-shadow: 4px 4px 0 0 black;
+    background-color: #fff;
+}
