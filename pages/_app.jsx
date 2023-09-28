@@ -4,6 +4,7 @@ import Head from "next/head"
 import { motion } from "framer-motion"
 import Person from "../components/Person"
 import Button from "../components/Button"
+import boxes from "../styles/boxes.module.css"
 
 const IndexPage = () => {
     const [people, setPeople] = React.useState([])
@@ -155,34 +156,36 @@ const IndexPage = () => {
             </Head>
             <main className="flex flex-col items-center justify-center">
                 <h1 className="text-3xl font-bold">Teamificator</h1>
-                <form onSubmit={onAddPerson}>
-                    <input
-                        id="input"
-                        className="w-64 px-4 py-2 mt-2 text-xl border border-gray-400 rounded-md"
-                        type="text"
-                        placeholder="Add a person"
-                    />
-                    <Button type="submit">
-                        <p>+</p>
-                    </Button>
-                </form>
-                <motion.div>
-                    {people.map((person) => (
-                        <Person
-                            name={person}
-                            onRemove={onRemovePerson(person)}
-                            onPair={startPairing(person)}
-                            onAvoid={startAvoiding(person)}
-                            state={getPersonState(
-                                person,
-                                pair_target,
-                                avoid_target
-                            )}
-                            onSelect={selectOtherPerson(person)}
-                            cancelSelect={cancelSelect}
+                <div className="flex flex-col items-left justify-center">
+                    <form onSubmit={onAddPerson}>
+                        <input
+                            id="input"
+                            className={`w-64 px-4 py-2 mt-2 text-xl focus:outline-none ${boxes.cartoony}`}
+                            type="text"
+                            placeholder="Add a person"
                         />
-                    ))}
-                </motion.div>
+                        <Button type="submit">
+                            <p>+</p>
+                        </Button>
+                    </form>
+                    <motion.div>
+                        {people.map((person) => (
+                            <Person
+                                name={person}
+                                onRemove={onRemovePerson(person)}
+                                onPair={startPairing(person)}
+                                onAvoid={startAvoiding(person)}
+                                state={getPersonState(
+                                    person,
+                                    pair_target,
+                                    avoid_target
+                                )}
+                                onSelect={selectOtherPerson(person)}
+                                cancelSelect={cancelSelect}
+                            />
+                        ))}
+                    </motion.div>
+                </div>
                 <br />
                 <h2 className="text-2xl font-bold">Pairings</h2>
                 <motion.div>

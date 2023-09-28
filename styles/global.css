@@ -2,11 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+
+
+/* Define constant colors */
+:root {
+  --primary: #0E5CE1;
+  --secondary: #C5D9FB;
+  --accent: #0F5EE6;
+  --text: #01040A;
+  --background: #FAFCFF;
+}
+
 html,
 body {
   padding: 0;
   margin: 0;
   font-family: Poppins, sans-serif;
+  background-color: var(--background);
 }
 
 a {
