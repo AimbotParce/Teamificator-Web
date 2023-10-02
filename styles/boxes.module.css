@@ -1,6 +1,22 @@
 .cartoony {
-    border: 4px solid #000;
+    border: 4px solid var(--text);
     border-radius: 16px;
-    box-shadow: 4px 4px 0 0 black;
+    box-shadow: 4px 4px 0 0 var(--text);
     background-color: #fff;
+}
+
+/* Create variants */
+.primary {
+    border-color: var(--primary);
+    box-shadow: 4px 4px 0 0 var(--primary);
+}
+
+.secondary {
+    border-color: var(--secondary);
+    box-shadow: 4px 4px 0 0 var(--secondary);
+}
+
+.accent {
+    border-color: var(--accent);
+    box-shadow: 4px 4px 0 0 var(--accent);
 }

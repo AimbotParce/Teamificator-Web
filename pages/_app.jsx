@@ -33,15 +33,11 @@ const IndexPage = () => {
     }
 
     const removePairs = (name) => {
-        setPairings(
-            pairings.filter((pair) => pair[0] !== name && pair[1] !== name)
-        )
+        setPairings(pairings.filter((pair) => pair[0] !== name && pair[1] !== name))
     }
 
     const removeAvoids = (name) => {
-        setAvoidances(
-            avoidances.filter((pair) => pair[0] !== name && pair[1] !== name)
-        )
+        setAvoidances(avoidances.filter((pair) => pair[0] !== name && pair[1] !== name))
     }
 
     const removePerson = (name) => {
@@ -86,24 +82,21 @@ const IndexPage = () => {
     }
 
     const getPersonState = (name, pairing, avoiding) => {
-        if (name === pairing) {
-            return "pairing_target"
-        } else if (name === avoiding) {
-            return "avoiding_target"
+        if (name === pairing || name === avoiding) {
+            return "target"
         } else if (pairing !== "" || avoiding !== "") {
             return "selectable"
         } else {
             return "idle"
         }
+
+        // There's a fourth state, "show", but it's not used here.
     }
 
     const checkIsIn = (list, name1, name2) => {
         for (let i = 0; i < list.length; i++) {
             const [n1, n2] = list[i]
-            if (
-                (n1 === name1 && n2 === name2) ||
-                (n1 === name2 && n2 === name1)
-            ) {
+            if ((n1 === name1 && n2 === name2) || (n1 === name2 && n2 === name1)) {
                 return true
             }
         }
@@ -111,10 +104,7 @@ const IndexPage = () => {
     }
 
     const checkInPairingsOrAvoidances = (name1, name2) => {
-        return (
-            checkIsIn(pairings, name1, name2) ||
-            checkIsIn(avoidances, name1, name2)
-        )
+        return checkIsIn(pairings, name1, name2) || checkIsIn(avoidances, name1, name2)
     }
 
     const selectOtherPerson = (name) => {
@@ -172,16 +162,14 @@ const IndexPage = () => {
                         {people.map((person) => (
                             <Person
                                 name={person}
+                                dropdown={{
+                                    "Pair with": startPairing(person),
+                                    "Avoid": startAvoiding(person),
+                                }}
                                 onRemove={onRemovePerson(person)}
-                                onPair={startPairing(person)}
-                                onAvoid={startAvoiding(person)}
-                                state={getPersonState(
-                                    person,
-                                    pair_target,
-                                    avoid_target
-                                )}
                                 onSelect={selectOtherPerson(person)}
                                 cancelSelect={cancelSelect}
+                                state={getPersonState(person, pair_target, avoid_target)}
                             />
                         ))}
                     </motion.div>
