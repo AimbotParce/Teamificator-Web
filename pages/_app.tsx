@@ -1,5 +1,4 @@
 import { motion } from "framer-motion"
-import Head from "next/head"
 import { useState } from "react"
 import Button from "../components/Button"
 import CloseButton from "../components/CloseButton"
@@ -9,10 +8,19 @@ import "../styles/global.css"
 
 const IndexPage = () => {
     const [people, setPeople] = useState<string[]>([])
-    const [pair_target, setPairing] = useState<string>("")
-    const [avoid_target, setAvoiding] = useState<string>("")
-    const [avoidances, setAvoidances] = useState<[string, string][]>([])
-    const [pairings, setPairings] = useState<[string, string][]>([])
+    const [pair_target, setPairing] = useState<number>()
+    const [avoid_target, setAvoiding] = useState<number>()
+    const [avoidances, setAvoidances] = useState<[number, number][]>([])
+    const [pairings, setPairings] = useState<[number, number][]>([])
+    const [alerts, setAlerts] = useState<string[]>([])
+
+    const pushAlert = (message) => {
+        setAlerts([...alerts, message])
+    }
+
+    const removeAlert = (index) => {
+        setAlerts(alerts.filter((_, i) => i !== index))
+    }
 
     const onAddPerson = (event) => {
         event.preventDefault()
@@ -22,9 +30,9 @@ const IndexPage = () => {
         const name = input.value.trim()
         // @ts-ignore
         if (people.includes(name)) {
-            alert("Person already added!")
+            pushAlert("Person already added!")
         } else if (name === "") {
-            alert("Name cannot be empty!")
+            pushAlert("Name cannot be empty!")
         } else {
             // @ts-ignore
             setPeople([...people, name])
@@ -149,10 +157,16 @@ const IndexPage = () => {
     }
 
     return (
-        <>
-            <Head>
-                <title>Teamificator</title>
-            </Head>
+        <body className="bg-gray-100 w-screen h-screen p-4 flex flex-col items-center">
+            <motion.div className="flex flex-col gap-2 w-fit">
+                {alerts.map((alert, j) => (
+                    <motion.div className="bg-red-200 p-2 rounded-lg w-full min-w-[320px] flex" key={j}>
+                        <p>{alert}</p>
+                        <CloseButton onClick={() => removeAlert(j)} />
+                    </motion.div>
+                ))}
+            </motion.div>
+            <motion.title>Teamificator</motion.title>
             <main className="flex flex-col items-center justify-center">
                 <h1 className="text-3xl font-bold">Teamificator</h1>
                 <div className="flex flex-col items-left justify-center">
@@ -224,7 +238,7 @@ const IndexPage = () => {
                     <p>Generate Teams</p>
                 </motion.button>
             </main>
-        </>
+        </body>
     )
 }
 
