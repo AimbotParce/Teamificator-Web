@@ -6,17 +6,26 @@
 }
 
 /* Create variants */
-.primary {
-    border-color: var(--primary);
-    box-shadow: 4px 4px 0 0 var(--primary);
+.darkblue {
+    border-color: #0E5CE1;
+    box-shadow: 4px 4px 0 0 #0E5CE1;
+    color: #0E5CE1;
 }
 
-.secondary {
-    border-color: var(--secondary);
-    box-shadow: 4px 4px 0 0 var(--secondary);
+.faintblue {
+    border-color: #8ea9d6;
+    box-shadow: 4px 4px 0 0 #8ea9d6;
+    color: #8ea9d6;
 }
 
-.accent {
-    border-color: var(--accent);
-    box-shadow: 4px 4px 0 0 var(--accent);
+.darkred {
+    border-color: #e1740e;
+    box-shadow: 4px 4px 0 0 #e1740e;
+    color: #e1740e;
+}
+
+.faintred {
+    border-color: #d3ae8b;
+    box-shadow: 4px 4px 0 0 #d3ae8b;
+    color: #d3ae8b;
 }

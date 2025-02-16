@@ -1,243 +1,140 @@
+"use client"
+import PersonRichCard from "@/components/PersonRichCard"
+import { PersonState, Relationship, RelationshipType } from "@/types"
+import { Add, Close } from "@mui/icons-material"
 import { motion } from "framer-motion"
-import { useState } from "react"
-import Button from "../components/Button"
-import CloseButton from "../components/CloseButton"
-import Person from "../components/Person"
+import { FormEvent, useState } from "react"
+import PersonCard from "../components/PersonCard"
 import boxes from "../styles/boxes.module.css"
 import "../styles/global.css"
 
 const IndexPage = () => {
     const [people, setPeople] = useState<string[]>([])
-    const [pair_target, setPairing] = useState<number>()
-    const [avoid_target, setAvoiding] = useState<number>()
-    const [avoidances, setAvoidances] = useState<[number, number][]>([])
-    const [pairings, setPairings] = useState<[number, number][]>([])
+    const [creating_relationship, setCreatingRelationship] = useState<[number, RelationshipType]>()
+    const [relationships, setRelationships] = useState<Relationship[]>([])
     const [alerts, setAlerts] = useState<string[]>([])
 
-    const pushAlert = (message) => {
+    const pushAlert = (message: string) => {
         setAlerts([...alerts, message])
     }
 
-    const removeAlert = (index) => {
+    const removeAlert = (index: number) => {
         setAlerts(alerts.filter((_, i) => i !== index))
     }
 
-    const onAddPerson = (event) => {
-        event.preventDefault()
-        const input = document.getElementById("input")
-        if (!input) return
-        // @ts-ignore
-        const name = input.value.trim()
-        // @ts-ignore
+    const addPerson = (name: string) => {
         if (people.includes(name)) {
             pushAlert("Person already added!")
         } else if (name === "") {
             pushAlert("Name cannot be empty!")
         } else {
-            // @ts-ignore
             setPeople([...people, name])
-            // @ts-ignore
+        }
+    }
+
+    const removePerson = (index: number) => {
+        if (creating_relationship !== undefined && creating_relationship[0] === index) {
+            setCreatingRelationship(undefined)
+        }
+        setRelationships(relationships.filter((r) => r[0] !== index && r[2] !== index))
+        setPeople(people.filter((_, i) => i !== index))
+    }
+
+    const removeRelationship = (index: number) => {
+        setRelationships(relationships.filter((r, i) => i !== index))
+    }
+
+    const onAddPersonSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault()
+        const input = document.getElementById("input")
+        if (!input) return
+        if (input instanceof HTMLInputElement) {
+            addPerson(input.value.trim())
             input.value = ""
         }
     }
 
-    const removePairs = (name) => {
-        setPairings(pairings.filter((pair) => pair[0] !== name && pair[1] !== name))
-    }
-
-    const removePairByIndex = (index) => {
-        setPairings(pairings.filter((_, i) => i !== index))
-    }
-
-    const removeAvoids = (name) => {
-        setAvoidances(avoidances.filter((pair) => pair[0] !== name && pair[1] !== name))
-    }
-
-    const removeAvoidByIndex = (index) => {
-        setAvoidances(avoidances.filter((_, i) => i !== index))
-    }
-
-    const removePerson = (name) => {
-        removePairs(name)
-        removeAvoids(name)
-        setPeople(people.filter((person) => person !== name))
-    }
-
-    const onRemovePerson = (name) => {
-        return () => {
-            if (pair_target === name) {
-                setPairing("")
-            } else if (avoid_target === name) {
-                setAvoiding("")
-            }
-            removePerson(name)
+    const getPersonState = (index: number): PersonState => {
+        if (creating_relationship === undefined) return PersonState.Idle
+        if (creating_relationship[0] === index) {
+            return creating_relationship[1] === RelationshipType.Pair ? PersonState.PairTarget : PersonState.AvoidTarget
         }
-    }
-
-    const startPairing = (name) => {
-        return () => {
-            if (pair_target !== "") {
-                alert("Already pairing with someone!")
-            } else if (avoid_target !== "") {
-                alert("Already avoiding someone!")
-            } else {
-                setPairing(name)
-            }
-        }
-    }
-
-    const startAvoiding = (name) => {
-        return () => {
-            if (pair_target !== "") {
-                alert("Already pairing with someone!")
-            } else if (avoid_target !== "") {
-                alert("Already avoiding someone!")
-            } else {
-                setAvoiding(name)
-            }
-        }
-    }
-
-    const getPersonState = (name, pairing, avoiding) => {
-        if (name === pairing || name === avoiding) {
-            return "target"
-        } else if (pairing !== "" || avoiding !== "") {
-            return "selectable"
+        if (creating_relationship[1] === RelationshipType.Pair) {
+            return PersonState.PairSelectable
         } else {
-            return "idle"
-        }
-
-        // There's a fourth state, "show", but it's not used here.
-    }
-
-    const checkIsIn = (list, name1, name2) => {
-        for (let i = 0; i < list.length; i++) {
-            const [n1, n2] = list[i]
-            if ((n1 === name1 && n2 === name2) || (n1 === name2 && n2 === name1)) {
-                return true
-            }
-        }
-        return false
-    }
-
-    const checkInPairingsOrAvoidances = (name1, name2) => {
-        return checkIsIn(pairings, name1, name2) || checkIsIn(avoidances, name1, name2)
-    }
-
-    const selectOtherPerson = (name) => {
-        return () => {
-            if (pair_target === "" && avoid_target === "") {
-                alert("No one is pairing or avoiding!")
-            } else if (pair_target !== "") {
-                if (checkInPairingsOrAvoidances(name, pair_target)) {
-                    alert("Already paired or avoided!")
-                } else {
-                    // @ts-ignore
-                    setPairings([...pairings, [name, pair_target]])
-                    setPairing("")
-                }
-            } else if (avoid_target !== "") {
-                if (checkInPairingsOrAvoidances(name, avoid_target)) {
-                    alert("Already paired or avoided!")
-                } else {
-                    // @ts-ignore
-                    setAvoidances([...avoidances, [name, avoid_target]])
-                    setAvoiding("")
-                }
-            }
-        }
-    }
-
-    const cancelSelect = () => {
-        if (pair_target !== "") {
-            setPairing("")
-        } else if (avoid_target !== "") {
-            setAvoiding("")
+            return PersonState.AvoidSelectable
         }
     }
 
     return (
-        <body className="bg-gray-100 w-screen h-screen p-4 flex flex-col items-center">
-            <motion.div className="flex flex-col gap-2 w-fit">
-                {alerts.map((alert, j) => (
-                    <motion.div className="bg-red-200 p-2 rounded-lg w-full min-w-[320px] flex" key={j}>
-                        <p>{alert}</p>
-                        <CloseButton onClick={() => removeAlert(j)} />
-                    </motion.div>
-                ))}
-            </motion.div>
-            <motion.title>Teamificator</motion.title>
-            <main className="flex flex-col items-center justify-center">
+        <body className="bg-gray-100 w-screen h-screen p-4 items-center">
+            <motion.main className="flex flex-col items-center gap-2 w-full h-full">
+                <motion.div className="flex flex-col gap-2 w-full items-center h-1/5 justify-end overflow-hidden relative">
+                    <div className="absolute top-0 h-1/5 w-full bg-gradient-to-b from-gray-100 to-transparent" />
+                    {alerts.map((alert, j) => (
+                        <motion.div
+                            className="bg-red-200 p-2 rounded-lg w-fit min-w-[320px] flex justify-between"
+                            key={j}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <p>{alert}</p>
+                            <button onClick={() => removeAlert(j)}>
+                                <Close />
+                            </button>
+                        </motion.div>
+                    ))}
+                </motion.div>
                 <h1 className="text-3xl font-bold">Teamificator</h1>
-                <div className="flex flex-col items-left justify-center">
-                    <form onSubmit={onAddPerson}>
-                        <input
-                            id="input"
-                            className={`w-64 px-4 py-2 mt-2 text-xl focus:outline-none ${boxes.cartoony}`}
-                            type="text"
-                            placeholder="Add a person"
-                        />
-                        <Button type="submit">
-                            <p>+</p>
-                        </Button>
-                    </form>
-                    <motion.div>
-                        {people.map((person) => (
-                            <Person
+                <form onSubmit={onAddPersonSubmit} className="flex items-center gap-2">
+                    <input
+                        id="input"
+                        className={`w-64 px-4 h-12 text-xl focus:outline-none ${boxes.cartoony}`}
+                        type="text"
+                        placeholder="Add a person"
+                    />
+                    <button type="submit" className={`ml-2 text-xl font-bold h-12 w-12 ${boxes.cartoony}`}>
+                        <Add />
+                    </button>
+                </form>
+                <div className="h-full w-1/2 grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-2">
+                        <h1 className="text-3xl font-bold ml-10">People</h1>
+                        {people.map((person, j) => (
+                            <PersonRichCard
+                                key={person}
                                 name={person}
-                                dropdown={{
-                                    "Pair with": startPairing(person),
-                                    "Avoid": startAvoiding(person),
+                                onCancelRelationshipSelection={() => setCreatingRelationship(undefined)}
+                                onCompleteRelationship={() => pushAlert("Not implemented!")}
+                                onRemove={() => removePerson(j)}
+                                onStartRelationshipSelection={(type) => {
+                                    setCreatingRelationship([j, type])
                                 }}
-                                onRemove={onRemovePerson(person)}
-                                onSelect={selectOtherPerson(person)}
-                                cancelSelect={cancelSelect}
-                                state={getPersonState(person, pair_target, avoid_target)}
+                                state={getPersonState(j)}
                             />
                         ))}
-                    </motion.div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <h1 className="text-3xl font-bold ml-10">Relationships</h1>
+                        {relationships.map(([p1, rel_type, p2], j) => (
+                            <motion.div className="flex r gap-10 items-center" key={`${p1}-${rel_type}-${p2}`}>
+                                <PersonCard name={people[p1]} />
+                                <p>{rel_type === RelationshipType.Pair ? "pairs with" : "avoids"}</p>
+                                <PersonCard name={people[p2]} />
+
+                                <button onClick={() => removeRelationship(j)}>
+                                    <Close />
+                                </button>
+                            </motion.div>
+                        ))}
+                    </div>
                 </div>
-                <br />
-                {pairings.length > 0 && (
-                    <>
-                        <h2 className="text-2xl font-bold">Pairings</h2>
-                        <motion.div>
-                            {pairings.map((pair, j) => (
-                                <motion.div className="flex r gap-10 items-center">
-                                    <Person name={pair[0]} state="show" />
-                                    <Person name={pair[1]} state="show" />
-
-                                    <CloseButton onClick={() => removePairByIndex(j)} />
-                                </motion.div>
-                            ))}
-                        </motion.div>
-                        <br />
-                    </>
-                )}
-
-                {avoidances.length > 0 && (
-                    <>
-                        <h2 className="text-2xl font-bold">Avoidances</h2>
-                        <motion.div>
-                            {avoidances.map((pair, j) => (
-                                <motion.div className="flex r gap-10 items-center" key={j}>
-                                    <Person name={pair[0]} state="show" />
-                                    <Person name={pair[1]} state="show" />
-                                    <CloseButton onClick={() => removeAvoidByIndex(j)} />
-                                </motion.div>
-                            ))}
-                        </motion.div>
-                        <br />
-                    </>
-                )}
-
-                <motion.button
+                <button
                     onClick={() => alert("Not implemented!")}
                     className={`ml-2 text-xl font-bold px-4 py-2 mt-2 ${boxes.cartoony}`}
                 >
                     <p>Generate Teams</p>
-                </motion.button>
-            </main>
+                </button>
+            </motion.main>
         </body>
     )
 }
