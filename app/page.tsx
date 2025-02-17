@@ -2,8 +2,8 @@
 import PersonRichCard from "@/components/PersonRichCard"
 import { PersonState, Relationship, RelationshipType } from "@/types"
 import { Add, ChangeCircle, Close, Delete, PriorityHigh } from "@mui/icons-material"
-import { motion } from "framer-motion"
-import { FormEvent, useState } from "react"
+import { AnimatePresence, motion } from "framer-motion"
+import { FormEvent, useEffect, useState } from "react"
 import PersonSmallCard from "../components/PersonSmallCard"
 import boxes from "../styles/boxes.module.css"
 import "../styles/global.css"
@@ -103,17 +103,20 @@ const IndexPage = () => {
     const [people, setPeople] = useState<string[]>([])
     const [creating_relationship, setCreatingRelationship] = useState<[number, RelationshipType]>()
     const [relationships, setRelationships] = useState<Relationship[]>([])
-    const [alerts, setAlerts] = useState<string[]>([])
+    const [alerts, setAlerts] = useState<{ message: string; id: number }[]>([])
+    const [alert_id, setAlertId] = useState<number>(0)
     const [num_teams, setNumTeams] = useState<number>(2)
     const [hard, setHard] = useState<boolean>(true)
 
     const pushAlert = (message: string) => {
-        setAlerts([...alerts, message])
+        setAlerts([{ message, id: alert_id }, ...alerts])
+        setTimeout(() => {
+            setAlerts((prev) => prev.filter((a) => a.id !== alert_id))
+        }, 5000)
+        setAlertId(alert_id + 1)
     }
 
-    const removeAlert = (index: number) => {
-        setAlerts(alerts.filter((_, i) => i !== index))
-    }
+    useEffect(() => {}, [alerts])
 
     const addPerson = (name: string) => {
         if (people.includes(name)) {
@@ -179,20 +182,26 @@ const IndexPage = () => {
 
     return (
         <motion.main className="flex flex-col items-center gap-2 w-full h-full overflow-hidden">
-            <motion.div className="flex flex-col gap-2 w-full items-center h-1/5 justify-end overflow-hidden relative">
-                <div className="absolute top-0 h-1/5 w-full bg-gradient-to-b from-gray-100 to-transparent" />
-                {alerts.map((alert, j) => (
-                    <motion.div
-                        className="bg-red-200 p-2 rounded-lg w-fit min-w-[320px] flex justify-between"
-                        key={j}
-                        transition={{ duration: 0.2 }}
-                    >
-                        <p>{alert}</p>
-                        <button onClick={() => removeAlert(j)}>
-                            <Close />
-                        </button>
-                    </motion.div>
-                ))}
+            <motion.div className="flex flex-col gap-2 absolute top-0 right-1/4 pt-4">
+                <AnimatePresence mode="sync">
+                    {alerts.map((alert) => (
+                        <motion.div
+                            key={alert.id}
+                            className="bg-red-200 p-2 rounded-lg w-fit min-w-[320px] flex justify-between"
+                            variants={{ hidden: { opacity: 0, scale: 0 }, visible: { opacity: 1, scale: 1 } }}
+                            initial="hidden"
+                            animate="visible"
+                            exit="hidden"
+                            layout
+                            transition={{ duration: 0.2 }}
+                        >
+                            <p>{alert.message}</p>
+                            <button onClick={() => setAlerts((prev) => prev.filter((a) => a.id !== alert.id))}>
+                                <Close />
+                            </button>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
             </motion.div>
             <h1 className="text-3xl font-bold">Teamificator</h1>
             <form onSubmit={onAddPersonSubmit} className="flex items-center gap-2 pb-1">
@@ -242,7 +251,7 @@ const IndexPage = () => {
                     ))}
                 </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 pb-1">
                 <p>Generate</p>
                 <button className={`px-2 focus:outline-none ${boxes.cartoony}`} onClick={() => setHard(!hard)}>
                     {hard ? "exactly" : "at most"}
@@ -264,12 +273,11 @@ const IndexPage = () => {
                             alert("Not implemented!")
                         }
                     }}
-                    className={`text-xl font-bold px-4 py-2 pb-1 ${boxes.cartoony}`}
+                    className={`text-xl font-bold px-4 py-2 ${boxes.cartoony}`}
                 >
                     <p>Generate Teams</p>
                 </button>
             </div>
-            <div className="h-1/5" />
         </motion.main>
     )
 }
