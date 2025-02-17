@@ -222,7 +222,10 @@ const IndexPage = () => {
                 <div
                     className={`flex flex-col gap-2 w-full h-full overflow-y-auto p-2 overflow-hidden ${boxes.cartoony}`}
                 >
-                    <h1 className="text-3xl font-bold ml-10">Relationships</h1>
+                    <h1 className="text-3xl font-bold ml-10 flex items-center">
+                        Relationships
+                        {!is_graph_sound && <PriorityHigh className="text-red-500" sx={{ fontSize: 30 }} />}
+                    </h1>
                     {relationships.map(([p1, rel_type, p2], j) => (
                         <motion.div className="flex gap-2 items-center" key={`${p1}-${rel_type}-${p2}`}>
                             <button onClick={() => removeRelationship(j)}>
@@ -231,7 +234,6 @@ const IndexPage = () => {
                             <PersonSmallCard name={people[p1]} />
                             <p>{rel_type === RelationshipType.Pair ? "pairs with" : "avoids"}</p>
                             <PersonSmallCard name={people[p2]} />
-                            {!is_graph_sound && <PriorityHigh className="text-red-500" />}
                         </motion.div>
                     ))}
                 </div>
