@@ -135,13 +135,17 @@ const IndexPage = () => {
 
     const finalizeRelationship = (index: number) => {
         if (creating_relationship === undefined) return
-        const [p1, rel_type] = creating_relationship
-        if (p1 === index) return
-        if (relationships.some(([p, t, _]) => p === p1 && t === rel_type && _ === index)) {
+        const [other, rel_type] = creating_relationship
+        if (other === index) return
+        if (
+            relationships.some(
+                ([p1, t, p2]) => (t === rel_type && p1 === other && p2 === index) || (p1 === index && p2 === other)
+            )
+        ) {
             setCreatingRelationship(undefined)
             return
         }
-        setRelationships([...relationships, [p1, rel_type, index]])
+        setRelationships([...relationships, [other, rel_type, index]])
         setCreatingRelationship(undefined)
     }
 
