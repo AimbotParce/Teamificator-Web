@@ -87,7 +87,7 @@ const IndexPage = () => {
     }
 
     return (
-        <motion.main className="flex flex-col items-center gap-2 w-full h-full">
+        <motion.main className="flex flex-col items-center gap-2 w-full h-full overflow-hidden">
             <motion.div className="flex flex-col gap-2 w-full items-center h-1/5 justify-end overflow-hidden relative">
                 <div className="absolute top-0 h-1/5 w-full bg-gradient-to-b from-gray-100 to-transparent" />
                 {alerts.map((alert, j) => (
@@ -115,8 +115,8 @@ const IndexPage = () => {
                     <Add />
                 </button>
             </form>
-            <div className="h-full w-1/2 grid grid-cols-2 gap-4">
-                <div className={`flex flex-col gap-2 p-2 overflow-hidden w-full h-full ${boxes.cartoony}`}>
+            <div className="h-full w-1/2 grid grid-cols-2 gap-4 overflow-hidden">
+                <div className={`flex flex-col gap-2 p-2 overflow-y-auto w-full h-full ${boxes.cartoony}`}>
                     <h1 className="text-3xl font-bold ml-10">People</h1>
                     {people.map((person, j) => (
                         <PersonRichCard
@@ -132,7 +132,9 @@ const IndexPage = () => {
                         />
                     ))}
                 </div>
-                <div className={`flex flex-col gap-2 w-full h-full p-2 overflow-hidden ${boxes.cartoony}`}>
+                <div
+                    className={`flex flex-col gap-2 w-full h-full overflow-y-auto p-2 overflow-hidden ${boxes.cartoony}`}
+                >
                     <h1 className="text-3xl font-bold ml-10">Relationships</h1>
                     {relationships.map(([p1, rel_type, p2], j) => (
                         <motion.div className="flex gap-2 items-center" key={`${p1}-${rel_type}-${p2}`}>
