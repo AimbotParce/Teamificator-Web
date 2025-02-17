@@ -254,7 +254,7 @@ const IndexPage = () => {
                     value={num_teams}
                     onChange={(e) => setNumTeams(parseInt(e.target.value))}
                 />
-                <p>teams</p>
+                <p>teams.</p>
                 <button
                     onClick={() => {
                         if (!is_graph_sound) {
@@ -264,7 +264,7 @@ const IndexPage = () => {
                             alert("Not implemented!")
                         }
                     }}
-                    className={`ml-2 text-xl font-bold px-4 py-2 pb-1 ${boxes.cartoony}`}
+                    className={`text-xl font-bold px-4 py-2 pb-1 ${boxes.cartoony}`}
                 >
                     <p>Generate Teams</p>
                 </button>
