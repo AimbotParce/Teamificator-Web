@@ -14,21 +14,6 @@ interface PersonRichCardProps extends HTMLMotionProps<"button"> {
     state: PersonState
 }
 
-// Map the PersonState enum to the corresponding Framer Motion variants
-const Animations = {
-    Idle: { rotate: 0 },
-    PairTarget: {
-        rotate: [-1, 1, 0, 1, -1],
-        transition: { duration: 0.3, repeat: Infinity, repeatType: "reverse" },
-    },
-    AvoidTarget: {
-        rotate: [-1, 1, 0, 1, -1],
-        transition: { duration: 0.3, repeat: Infinity, repeatType: "reverse" },
-    },
-    AvoidSelectable: { rotate: 0, scale: 1.02 },
-    PairSelectable: { rotate: 0, scale: 1.02 },
-}
-
 const Colors = {
     [PersonState.Idle]: "",
     [PersonState.PairTarget]: boxes.faintblue,
@@ -78,7 +63,19 @@ class PersonRichCard extends React.Component<PersonRichCardProps> {
                 <motion.button
                     className={`flex items-center justify-between r w-64 px-4 py-2 text-xl ${boxes.cartoony} ${this.props.className} ${color}`}
                     animate={PersonState[state]}
-                    variants={Animations}
+                    variants={{
+                        Idle: { rotate: 0 },
+                        PairTarget: {
+                            rotate: [-1, 1, 0, 1, -1],
+                            transition: { duration: 0.3, repeat: Infinity, repeatType: "reverse" },
+                        },
+                        AvoidTarget: {
+                            rotate: [-1, 1, 0, 1, -1],
+                            transition: { duration: 0.3, repeat: Infinity, repeatType: "reverse" },
+                        },
+                        AvoidSelectable: { rotate: 0, scale: 1.02 },
+                        PairSelectable: { rotate: 0, scale: 1.02 },
+                    }}
                     onClick={onClickCard}
                     {...otherProps}
                 >
