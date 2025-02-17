@@ -181,8 +181,8 @@ const IndexPage = () => {
     const is_graph_sound = isGraphSound(people, relationships, num_teams, hard)
 
     return (
-        <motion.main className="flex flex-col items-center gap-2 w-full h-full overflow-hidden">
-            <motion.div className="flex flex-col gap-2 absolute top-0 right-1/4 pt-4">
+        <motion.main className="flex flex-col items-center gap-2 w-full h-full overflow-hidden relative py-10">
+            <motion.div className="flex flex-col gap-2 absolute top-0 right-[24%] ">
                 <AnimatePresence mode="sync">
                     {alerts.map((alert) => (
                         <motion.div
