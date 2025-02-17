@@ -57,9 +57,9 @@ class PersonRichCard extends React.Component<PersonRichCardProps> {
 
         return (
             <div className="flex items-center gap-2 h-fit">
-                <button onClick={this.props.onRemove}>
+                <motion.button onClick={this.props.onRemove} whileHover={{ scale: 1.1 }}>
                     <Delete />
-                </button>
+                </motion.button>
                 <motion.button
                     className={`flex items-center justify-between r w-64 px-4 py-2 text-xl ${boxes.cartoony} ${this.props.className} ${color}`}
                     animate={PersonState[state]}
@@ -77,25 +77,32 @@ class PersonRichCard extends React.Component<PersonRichCardProps> {
                         PairSelectable: { rotate: 0, scale: 1.02 },
                     }}
                     onClick={onClickCard}
+                    whileHover={{ scale: 1.02 }}
                     {...otherProps}
                 >
                     <p className="overflow-hidden overflow-ellipsis w-40 h-10 items-center flex">{this.props.name}</p>
                 </motion.button>
                 <div className="flex flex-col h-fit justify-center items-center gap-2">
                     {(this.props.state === PersonState.PairTarget || this.props.state === PersonState.AvoidTarget) && (
-                        <button onClick={this.props.onCancelRelationshipSelection}>
+                        <motion.button onClick={this.props.onCancelRelationshipSelection} whileHover={{ scale: 1.1 }}>
                             <Close />
-                        </button>
+                        </motion.button>
                     )}
                     {this.props.state === PersonState.Idle && (
-                        <button onClick={() => this.props.onStartRelationshipSelection(RelationshipType.Pair)}>
+                        <motion.button
+                            onClick={() => this.props.onStartRelationshipSelection(RelationshipType.Pair)}
+                            whileHover={{ scale: 1.1 }}
+                        >
                             <AddLink />
-                        </button>
+                        </motion.button>
                     )}
                     {this.props.state === PersonState.Idle && (
-                        <button onClick={() => this.props.onStartRelationshipSelection(RelationshipType.Avoid)}>
+                        <motion.button
+                            onClick={() => this.props.onStartRelationshipSelection(RelationshipType.Avoid)}
+                            whileHover={{ scale: 1.1 }}
+                        >
                             <Dangerous />
-                        </button>
+                        </motion.button>
                     )}
                 </div>
             </div>

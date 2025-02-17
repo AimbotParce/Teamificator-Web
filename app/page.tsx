@@ -211,9 +211,13 @@ const IndexPage = () => {
                     type="text"
                     placeholder="Add a person"
                 />
-                <button type="submit" className={`ml-2 text-xl font-bold h-12 w-12 ${boxes.cartoony}`}>
+                <motion.button
+                    type="submit"
+                    className={`ml-2 text-xl font-bold h-12 w-12 ${boxes.cartoony}`}
+                    whileHover={{ scale: 1.05 }}
+                >
                     <Add />
-                </button>
+                </motion.button>
             </form>
             <div className="h-full w-1/2 grid grid-cols-2 gap-4 overflow-hidden pb-1 pr-1">
                 <div className={`flex flex-col gap-2 p-2 overflow-y-auto w-full h-full ${boxes.cartoony}`}>
@@ -241,9 +245,9 @@ const IndexPage = () => {
                     </h1>
                     {relationships.map(([p1, rel_type, p2], j) => (
                         <motion.div className="flex gap-2 items-center" key={`${p1}-${rel_type}-${p2}`}>
-                            <button onClick={() => removeRelationship(j)}>
+                            <motion.button onClick={() => removeRelationship(j)} whileHover={{ scale: 1.1 }}>
                                 <Delete />
-                            </button>
+                            </motion.button>
                             <PersonSmallCard name={people[p1]} />
                             <p>{rel_type === RelationshipType.Pair ? "pairs with" : "avoids"}</p>
                             <PersonSmallCard name={people[p2]} />
@@ -253,10 +257,14 @@ const IndexPage = () => {
             </div>
             <div className="flex items-center gap-2 pb-1">
                 <p>Generate</p>
-                <button className={`px-2 focus:outline-none ${boxes.cartoony}`} onClick={() => setHard(!hard)}>
+                <motion.button
+                    className={`px-2 focus:outline-none ${boxes.cartoony}`}
+                    onClick={() => setHard(!hard)}
+                    whileHover={{ scale: 1.02 }}
+                >
                     {hard ? "exactly" : "at most"}
                     <ChangeCircle />
-                </button>
+                </motion.button>
                 <input
                     className={`px-2 h-12 w-16 focus:outline-none ${boxes.cartoony}`}
                     type="number"
@@ -264,7 +272,7 @@ const IndexPage = () => {
                     onChange={(e) => setNumTeams(parseInt(e.target.value))}
                 />
                 <p>teams.</p>
-                <button
+                <motion.button
                     onClick={() => {
                         if (!is_graph_sound) {
                             pushAlert("There's some conflicting relationships!")
@@ -274,9 +282,10 @@ const IndexPage = () => {
                         }
                     }}
                     className={`text-xl font-bold px-4 py-2 ${boxes.cartoony}`}
+                    whileHover={{ scale: 1.03 }}
                 >
                     <p>Generate Teams</p>
-                </button>
+                </motion.button>
             </div>
         </motion.main>
     )
