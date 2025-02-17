@@ -104,7 +104,7 @@ const IndexPage = () => {
                 ))}
             </motion.div>
             <h1 className="text-3xl font-bold">Teamificator</h1>
-            <form onSubmit={onAddPersonSubmit} className="flex items-center gap-2">
+            <form onSubmit={onAddPersonSubmit} className="flex items-center gap-2 pb-1">
                 <input
                     id="input"
                     className={`w-64 px-4 h-12 text-xl focus:outline-none ${boxes.cartoony}`}
@@ -115,7 +115,7 @@ const IndexPage = () => {
                     <Add />
                 </button>
             </form>
-            <div className="h-full w-1/2 grid grid-cols-2 gap-4 overflow-hidden">
+            <div className="h-full w-1/2 grid grid-cols-2 gap-4 overflow-hidden pb-1 pr-1">
                 <div className={`flex flex-col gap-2 p-2 overflow-y-auto w-full h-full ${boxes.cartoony}`}>
                     <h1 className="text-3xl font-bold ml-10">People</h1>
                     {people.map((person, j) => (
@@ -158,7 +158,7 @@ const IndexPage = () => {
                         alert("Not implemented!")
                     }
                 }}
-                className={`ml-2 text-xl font-bold px-4 py-2 ${boxes.cartoony}`}
+                className={`ml-2 text-xl font-bold px-4 py-2 pb-1 ${boxes.cartoony}`}
             >
                 <p>Generate Teams</p>
             </button>
