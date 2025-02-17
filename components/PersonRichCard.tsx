@@ -4,9 +4,8 @@ import { AddLink, Close, Dangerous, Delete } from "@mui/icons-material"
 import { HTMLMotionProps, motion } from "framer-motion"
 import React from "react"
 import boxes from "../styles/boxes.module.css"
-import { PersonCardProps } from "./PersonCard"
 
-interface PersonRichCardProps extends HTMLMotionProps<"div"> {
+interface PersonRichCardProps extends HTMLMotionProps<"button"> {
     name: string
     onRemove: () => void
     onStartRelationshipSelection: (type: RelationshipType) => void
@@ -47,6 +46,30 @@ class PersonRichCard extends React.Component<PersonRichCardProps> {
         const { state } = this.props
         const color = Colors[state]
 
+        const onClickCard =
+            {
+                [PersonState.Idle]: () => this.props.onStartRelationshipSelection(RelationshipType.Pair),
+                [PersonState.PairSelectable]: this.props.onCompleteRelationship,
+                [PersonState.AvoidSelectable]: this.props.onCompleteRelationship,
+                [PersonState.PairTarget]: this.props.onCancelRelationshipSelection,
+                [PersonState.AvoidTarget]: this.props.onCancelRelationshipSelection,
+            }[this.props.state] ?? (() => {})
+
+        // Filter those not in the HTMLMotionProps<"button"> interface
+        const otherProps = Object.fromEntries(
+            Object.entries(this.props).filter(
+                ([key]) =>
+                    ![
+                        "name",
+                        "onRemove",
+                        "onStartRelationshipSelection",
+                        "onCancelRelationshipSelection",
+                        "onCompleteRelationship",
+                        "state",
+                    ].includes(key)
+            )
+        )
+
         return (
             <div className="flex items-center gap-2 h-fit">
                 <button onClick={this.props.onRemove}>
@@ -56,15 +79,8 @@ class PersonRichCard extends React.Component<PersonRichCardProps> {
                     className={`flex items-center justify-between r w-64 px-4 py-2 text-xl ${boxes.cartoony} ${this.props.className} ${color}`}
                     animate={PersonState[state]}
                     variants={Animations}
-                    onClick={
-                        this.props.state === PersonState.Idle
-                            ? () => this.props.onStartRelationshipSelection(RelationshipType.Pair)
-                            : this.props.state === PersonState.PairSelectable ||
-                              this.props.state === PersonState.AvoidSelectable
-                            ? this.props.onCompleteRelationship
-                            : undefined
-                    }
-                    {...(this.props as PersonCardProps)}
+                    onClick={onClickCard}
+                    {...otherProps}
                 >
                     <p className="overflow-hidden overflow-ellipsis w-40 h-10 items-center flex">{this.props.name}</p>
                 </motion.button>
