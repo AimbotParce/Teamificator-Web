@@ -1,18 +1,111 @@
 "use client"
 import PersonRichCard from "@/components/PersonRichCard"
 import { PersonState, Relationship, RelationshipType } from "@/types"
-import { Add, Close, Delete, PriorityHigh } from "@mui/icons-material"
+import { Add, ChangeCircle, Close, Delete, PriorityHigh } from "@mui/icons-material"
 import { motion } from "framer-motion"
 import { FormEvent, useState } from "react"
 import PersonSmallCard from "../components/PersonSmallCard"
 import boxes from "../styles/boxes.module.css"
 import "../styles/global.css"
 
+function isGraphSound(nodes: string[], edges: Relationship[], num_colors: number, hard: boolean = true): boolean {
+    if (!nodes.length) return true
+    if (!edges.length) return true
+
+    const pair_adjacencies: Record<number, number[]> = {}
+    const avoid_adjacencies: Record<number, number[]> = {}
+    nodes.forEach((_, i) => {
+        pair_adjacencies[i] = []
+        avoid_adjacencies[i] = []
+    })
+    edges.forEach(([p1, rel_type, p2]) => {
+        if (rel_type === RelationshipType.Pair) {
+            pair_adjacencies[p1].push(p2)
+            pair_adjacencies[p2].push(p1)
+        } else {
+            avoid_adjacencies[p1].push(p2)
+            avoid_adjacencies[p2].push(p1)
+        }
+    })
+    const components: number[][] = []
+    const node_component_map: Record<number, number> = {}
+    const visited: boolean[] = new Array(nodes.length).fill(false)
+    nodes.forEach((_, i) => {
+        if (visited[i]) return
+        const component: number[] = []
+        const stack: number[] = [i]
+        while (stack.length > 0) {
+            const current = stack.pop()!
+            if (visited[current]) continue
+            visited[current] = true
+            component.push(current)
+            node_component_map[current] = components.length
+            pair_adjacencies[current].forEach((adj) => {
+                if (!visited[adj]) stack.push(adj)
+            })
+        }
+        components.push(component)
+    })
+    console.log("Components:", components)
+    console.log("Node-to-component map:", node_component_map)
+
+    let has_self_loops = false
+    const component_avoid_adjacencies: Record<number, number[]> = {}
+    components.forEach((component, i) => {
+        component_avoid_adjacencies[i] = []
+        component.forEach((node) => {
+            avoid_adjacencies[node].forEach((adj) => {
+                if (component.includes(adj)) has_self_loops = true
+                if (!component_avoid_adjacencies[i].includes(node_component_map[adj]))
+                    component_avoid_adjacencies[i].push(node_component_map[adj])
+            })
+        })
+    })
+    console.log("Component Avoid Adjacencies:", component_avoid_adjacencies)
+    console.log("Has Self Loops:", has_self_loops)
+    if (has_self_loops) return false // No need to continue, self-loops are not allowed
+
+    function continueColors(current_colors: number[], current_component: number, depth: number = 1): boolean {
+        // Check if all the nodes have a color and all the adjacent nodes have different colors
+
+        console.log("    ".repeat(depth) + "Continuing with component", current_component, "- Attempting:")
+
+        for (let color = 0; color < num_colors; color++) {
+            const new_colors = [...current_colors]
+            new_colors[current_component] = color
+            console.log("    ".repeat(depth + 1) + "Configuration:", new_colors)
+            const some_unset = new_colors.some((c) => c === undefined)
+            const conflict = components.some((c, j) =>
+                component_avoid_adjacencies[j].some((oth) => new_colors[oth] === new_colors[j])
+            )
+            const distinct_colors = new Set(new_colors.filter((c) => c !== undefined)).size
+            console.log("    ".repeat(depth + 1) + "Some Unset:", some_unset)
+            console.log("    ".repeat(depth + 1) + "Conflict:", conflict)
+            console.log("    ".repeat(depth + 1) + "Distinct Colors:", distinct_colors)
+            if (hard) {
+                if (!some_unset && !conflict && distinct_colors === num_colors) return true
+            } else {
+                if (!some_unset && !conflict) return true
+            }
+            for (let other_comp = 0; other_comp < components.length; other_comp++) {
+                if (new_colors[other_comp] !== undefined) continue
+                const ok = continueColors(new_colors, other_comp, depth + 2)
+                if (ok) return true
+            }
+        }
+        return false
+    }
+
+    return continueColors(new Array(components.length).fill(undefined), 0)
+}
+
 const IndexPage = () => {
     const [people, setPeople] = useState<string[]>([])
     const [creating_relationship, setCreatingRelationship] = useState<[number, RelationshipType]>()
     const [relationships, setRelationships] = useState<Relationship[]>([])
     const [alerts, setAlerts] = useState<string[]>([])
+    const [num_teams, setNumTeams] = useState<number>(2)
+    const [hard, setHard] = useState<boolean>(true)
 
     const pushAlert = (message: string) => {
         setAlerts([...alerts, message])
@@ -78,13 +171,7 @@ const IndexPage = () => {
         }
     }
 
-    const conflictingRelationships = relationships.filter((relationship) => {
-        return relationships.filter((r) => r[0] === relationship[0] && r[2] === relationship[2]).length > 1
-    })
-
-    const isConflictingRelationship = (relationship: Relationship) => {
-        return conflictingRelationships.some((r) => r[0] === relationship[0] && r[2] === relationship[2])
-    }
+    const is_graph_sound = isGraphSound(people, relationships, num_teams, hard)
 
     return (
         <motion.main className="flex flex-col items-center gap-2 w-full h-full overflow-hidden">
@@ -144,24 +231,38 @@ const IndexPage = () => {
                             <PersonSmallCard name={people[p1]} />
                             <p>{rel_type === RelationshipType.Pair ? "pairs with" : "avoids"}</p>
                             <PersonSmallCard name={people[p2]} />
-                            {isConflictingRelationship([p1, rel_type, p2]) && <PriorityHigh className="text-red-500" />}
+                            {!is_graph_sound && <PriorityHigh className="text-red-500" />}
                         </motion.div>
                     ))}
                 </div>
             </div>
-            <button
-                onClick={() => {
-                    if (conflictingRelationships.length > 0) {
-                        pushAlert("There's some conflicting relationships!")
-                        return
-                    } else {
-                        alert("Not implemented!")
-                    }
-                }}
-                className={`ml-2 text-xl font-bold px-4 py-2 pb-1 ${boxes.cartoony}`}
-            >
-                <p>Generate Teams</p>
-            </button>
+            <div className="flex items-center gap-2">
+                <p>Generate</p>
+                <button className={`px-2 focus:outline-none ${boxes.cartoony}`} onClick={() => setHard(!hard)}>
+                    {hard ? "exactly" : "at most"}
+                    <ChangeCircle />
+                </button>
+                <input
+                    className={`px-2 h-12 w-16 focus:outline-none ${boxes.cartoony}`}
+                    type="number"
+                    value={num_teams}
+                    onChange={(e) => setNumTeams(parseInt(e.target.value))}
+                />
+                <p>teams</p>
+                <button
+                    onClick={() => {
+                        if (!is_graph_sound) {
+                            pushAlert("There's some conflicting relationships!")
+                            return
+                        } else {
+                            alert("Not implemented!")
+                        }
+                    }}
+                    className={`ml-2 text-xl font-bold px-4 py-2 pb-1 ${boxes.cartoony}`}
+                >
+                    <p>Generate Teams</p>
+                </button>
+            </div>
             <div className="h-1/5" />
         </motion.main>
     )
